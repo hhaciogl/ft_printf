@@ -6,7 +6,7 @@
 /*   By: hhaciogl <hhaciogl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/16 17:40:25 by hhaciogl          #+#    #+#             */
-/*   Updated: 2024/11/23 03:42:47 by hhaciogl         ###   ########.fr       */
+/*   Updated: 2024/11/23 14:23:27 by hhaciogl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,8 @@ int	ft_printf(const char *format, ...)
 			else if (format[i] == 'i' || format[i] == 'd')
 			{
 				str = ft_itoa(va_arg(arg_list, int));
+				if (str == NULL)
+					return (-1);
 				ft_putstr_fd(str, 1);
 				j += ft_strlen(str) - 2;
 				free(str);
