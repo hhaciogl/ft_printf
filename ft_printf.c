@@ -6,7 +6,7 @@
 /*   By: hhaciogl <hhaciogl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/16 17:40:25 by hhaciogl          #+#    #+#             */
-/*   Updated: 2024/11/24 13:25:44 by hhaciogl         ###   ########.fr       */
+/*   Updated: 2024/11/24 15:21:03 by hhaciogl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,6 @@
 #include "ft_printf.h"
 #include <stdlib.h>
 #include <limits.h>
-#include <stdio.h>
-union typeholder
-{
-	char *s;
-	int	i;
-};
 
 int	ft_printf(const char *format, ...)
 {
@@ -57,7 +51,6 @@ int	ft_printf(const char *format, ...)
 			else if (format[i] == 'i' || format[i] == 'd')
 			{
 				int a = va_arg(arg_list, int);
-				printf("A:%i", a);
 				str = ft_itoa(a);
 				if (str == NULL)
 					return (-1);
