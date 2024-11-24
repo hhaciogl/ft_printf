@@ -6,7 +6,7 @@
 /*   By: hhaciogl <hhaciogl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/16 17:40:25 by hhaciogl          #+#    #+#             */
-/*   Updated: 2024/11/24 20:12:30 by hhaciogl         ###   ########.fr       */
+/*   Updated: 2024/11/24 22:39:56 by hhaciogl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,10 @@
 #include <limits.h>
 #include <stdio.h>
 
-
+// static int hex(int num, int isx)
+// {
+//     return 0;
+// }
 
 int	ft_printf(const char *format, ...)
 {
@@ -40,7 +43,10 @@ int	ft_printf(const char *format, ...)
 				unsigned int a = va_arg(arg_list, unsigned int);
 				unsigned int b = a % 10000;
 				a = a / 10000;
-				str = ft_itoa(a);
+                if (a != 0)
+				    str = ft_itoa(a);
+                else
+                    str=ft_strdup("");
 				char *str2 = ft_itoa(b);
 				char *new_str = ft_strjoin(str, str2);
 				if (new_str == NULL)
