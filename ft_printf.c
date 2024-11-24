@@ -6,7 +6,7 @@
 /*   By: hhaciogl <hhaciogl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/16 17:40:25 by hhaciogl          #+#    #+#             */
-/*   Updated: 2024/11/24 15:21:03 by hhaciogl         ###   ########.fr       */
+/*   Updated: 2024/11/24 20:12:30 by hhaciogl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 #include "ft_printf.h"
 #include <stdlib.h>
 #include <limits.h>
+#include <stdio.h>
+
+
 
 int	ft_printf(const char *format, ...)
 {
@@ -32,7 +35,24 @@ int	ft_printf(const char *format, ...)
 	{
 		if (is_f)
 		{
-			if (format[i] == 'c')
+			if (format[i] == 'u')
+			{
+				unsigned int a = va_arg(arg_list, unsigned int);
+				unsigned int b = a % 10000;
+				a = a / 10000;
+				str = ft_itoa(a);
+				char *str2 = ft_itoa(b);
+				char *new_str = ft_strjoin(str, str2);
+				if (new_str == NULL)
+					return (-1);
+				ft_putstr_fd(new_str, 1);
+				j += ft_strlen(new_str) - 2;
+				free(str);
+				free(str2);
+				free(new_str);
+				str = NULL;	
+			}
+			else if (format[i] == 'c')
 			{
 				ft_putchar_fd(va_arg(arg_list, int), 1);
 				j -= 1;
