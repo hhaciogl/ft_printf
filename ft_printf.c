@@ -6,7 +6,7 @@
 /*   By: hhaciogl <hhaciogl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/16 17:40:25 by hhaciogl          #+#    #+#             */
-/*   Updated: 2024/11/24 22:39:56 by hhaciogl         ###   ########.fr       */
+/*   Updated: 2024/11/25 01:16:34 by hhaciogl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,54 @@
 #include <limits.h>
 #include <stdio.h>
 
-// static int hex(int num, int isx)
-// {
-//     return 0;
-// }
+static int get_hex(unsigned int num, int isx)
+{
+    char    *hex_s;
+    char    *hex_b;
+    int     size;
+
+    hex_s = "0123456789abcdef";
+    hex_b = "0123456789ABCDEF";
+    size = 0;
+    if (num < 16)
+    {
+        if (isx)
+            ft_putchar_fd(hex_s[num], 1);
+        else
+            ft_putchar_fd(hex_b[num], 1);
+        size += 1;
+    }
+    else
+    {
+        size += get_hex(num/16, isx);
+        size += get_hex(num%16, isx);
+    }
+    return (size);
+}
+
+static int get_ptr(void *num)
+{
+    int size;
+    unsigned long ulnum;
+    char *hex;
+
+    size = 0;
+    hex = "0123456789abcdef";
+    ulnum = (unsigned long)num;
+
+    if (ulnum < 16)
+    {
+        ft_putchar_fd(hex[ulnum],1);
+        size += 1;
+    }
+    else
+    {
+        size += get_ptr((void *)(ulnum/16));
+        size += get_ptr((void *)(ulnum%16));
+    }
+
+    return (size);
+}
 
 int	ft_printf(const char *format, ...)
 {
@@ -38,7 +82,30 @@ int	ft_printf(const char *format, ...)
 	{
 		if (is_f)
 		{
-			if (format[i] == 'u')
+            if (format[i] == 'p')
+            {   
+                unsigned long a = (unsigned long)va_arg(arg_list, void *);
+                if (a != 0)
+                {
+                    ft_putstr_fd("0x", 1);
+                    j += get_ptr((void *)a);
+                }
+                else
+                {
+                    ft_putstr_fd("(nil)",1);
+                    j += 3;
+                }
+
+            }
+            else if (format[i] == 'X')
+            {
+                j += get_hex(va_arg(arg_list, unsigned int), 0) - 2;
+            }
+            else if (format[i]== 'x')
+            {
+               j += get_hex(va_arg(arg_list, unsigned int), 1) - 2;
+            }
+			else if (format[i] == 'u')
 			{
 				unsigned int a = va_arg(arg_list, unsigned int);
 				unsigned int b = a % 10000;
