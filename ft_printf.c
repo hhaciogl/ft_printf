@@ -6,7 +6,7 @@
 /*   By: hhaciogl <hhaciogl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/16 17:40:25 by hhaciogl          #+#    #+#             */
-/*   Updated: 2024/11/25 17:56:03 by hhaciogl         ###   ########.fr       */
+/*   Updated: 2024/11/25 20:52:06 by hhaciogl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,15 @@
 #include "ft_printf.h"
 #include <stdlib.h>
 
-static	int	_get_hex(unsigned int num, int isx)
+typedef struct s_args
+{
+	size_t				i;
+	size_t				j;
+	int					is_f;
+	int					is_err;
+} t_args;
+
+static	int	_get_hex(unsigned int num, char x)
 {
 	char	*hex_s;
 	char	*hex_b;
@@ -26,7 +34,7 @@ static	int	_get_hex(unsigned int num, int isx)
 	size = 0;
 	if (num < 16)
 	{
-		if (isx)
+		if (x == 'x')
 			ft_putchar_fd(hex_s[num], 1);
 		else
 			ft_putchar_fd(hex_b[num], 1);
@@ -34,8 +42,8 @@ static	int	_get_hex(unsigned int num, int isx)
 	}
 	else
 	{
-		size += _get_hex(num / 16, isx);
-		size += _get_hex(num % 16, isx);
+		size += _get_hex(num / 16, x);
+		size += _get_hex(num % 16, x);
 	}
 	return (size);
 }
@@ -103,7 +111,7 @@ static	int	_get_unsigned_int(unsigned int z, size_t *j)
 		str = ft_strdup("");
 		if (!str)
 			return (-1);
-	}	
+	}
 	str2 = ft_itoa((z % 10000));
 	if (!str2)
 		return (_free_with_return(-1, 1, str));
@@ -115,27 +123,25 @@ static	int	_get_unsigned_int(unsigned int z, size_t *j)
 	return (_free_with_return(0, 3, str, str2, new_str));
 }
 
-static	int	_get_int(int intm, size_t *j)
+static	void	_get_int(int intm, size_t *j, int *is_err)
 {
 	char	*str;
 
 	str = ft_itoa(intm);
 	if (str == NULL)
-		return (-1);
+	{
+		*is_err = 1;
+		return ;
+	}
 	ft_putstr_fd(str, 1);
 	*j += ft_strlen(str) - 2;
 	free(str);
-	return (0);
 }
 
-static	int	_get_str(char *str, size_t *j)
+static	void	_get_str(char *str, size_t *j)
 {
 	ft_putstr_fd(str, 1);
-	if (str != NULL)
-		*j += ft_strlen(str) - 2;
-	else
-		return (-1);
-	return (0);
+	*j += ft_strlen(str) - 2;
 }
 
 static	void	_get_char(int c, size_t *j)
@@ -144,62 +150,67 @@ static	void	_get_char(int c, size_t *j)
 	*j -= 1;
 }
 
+static void _init_to_zero(t_args *ta)
+{
+	ta->i = 0;
+	ta->j = 0;
+	ta->is_err = 0;
+	ta->is_f = 0;
+}
+
+static void _char_format(const char *format, size_t *i, int *is_f, int *is_err)
+{
+	if (format[(*i + 1)] == '\0')
+		*is_f = 1;
+	else
+		*is_err = 1;
+}
+
+static void _loop(const char *format, t_args *ta, va_list arg_list)
+{
+	while (format[ta->i] && !ta->is_err)
+	{
+		if (ta->is_f)
+		{
+			if (format[ta->i] == 'p')
+				_get_ptr_with_ox(va_arg(arg_list, unsigned long), &ta->j);
+			else if (format[ta->i] == 'X' || format[ta->i] == 'x')
+				ta->j += _get_hex(va_arg(arg_list, unsigned), format[ta->i]) - 2;
+			else if (format[ta->i] == 'c')
+				_get_char(va_arg(arg_list, int), &ta->j);
+			else if (format[ta->i] == '%')
+				_get_char(format[ta->i], &ta->j);
+			else if (format[ta->i] == 's')
+				_get_str(va_arg(arg_list, char *), &ta->j);
+			else if (format[ta->i] == 'i' || format[ta->i] == 'd')
+				_get_int(va_arg(arg_list, int), &ta->j, &ta->is_err);
+			else if (format[ta->i] == 'u')
+			{
+				if (0 > _get_unsigned_int(va_arg(arg_list, unsigned), &ta->j))
+					ta->is_err = 1;
+			}
+			else
+				ta->is_err = 1;
+			ta->is_f = 0;
+		}
+		else if (format[ta->i] == '%')
+			_char_format(format, &ta->i, &ta->is_err, &ta->is_f);
+		else
+			ft_putchar_fd(format[ta->i], 1);
+		ta->i++;
+	}
+}
 
 int	ft_printf(const char *format, ...)
 {
-	va_list				arg_list;
-	size_t				i;
-	size_t				j;
-	int					is_f;
+	va_list	arg_list;
+	t_args	ta;		
 
-	i = 0;
-	j = 0;
-	is_f = 0;
+	_init_to_zero(&ta);
 	va_start(arg_list, format);
-	while (format[i])
-	{
-		if (is_f)
-		{
-			if (format[i] == 'p')
-				_get_ptr_with_ox(va_arg(arg_list, unsigned long), &j);
-			else if (format[i] == 'X')
-				j += _get_hex(va_arg(arg_list, unsigned int), 0) - 2;
-			else if (format[i] == 'x')
-				j += _get_hex(va_arg(arg_list, unsigned int), 1) - 2;
-			else if (format[i] == 'u')
-			{
-				if (0 > _get_unsigned_int(va_arg(arg_list, unsigned int), &j))
-					return (-1);
-			}
-			else if (format[i] == 'c')
-				_get_char(va_arg(arg_list, int), &j);
-			else if (format[i] == '%')
-				_get_char(format[i], &j);
-			else if (format[i] == 's')
-			{
-				if (0 > _get_str(va_arg(arg_list, char *), &j))
-					return (-1);
-			}
-			else if (format[i] == 'i' || format[i] == 'd')
-			{
-				if (0 > _get_int(va_arg(arg_list, int), &j))
-					return (-1);
-			}
-			else
-				return (-1);
-			is_f = 0;
-		}
-		else if (format[i] == '%')
-		{
-			if (format[i + 1])
-				is_f = 1;
-			else
-				return (-1);
-		}
-		else
-			ft_putchar_fd(format[i], 1);
-		i++;
-	}
+	_loop(format, &ta, arg_list);
 	va_end(arg_list);
-	return (i + j);
+	if (ta.is_err)
+		return (-1);
+	return (ta.i + ta.j);
 }
