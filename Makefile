@@ -1,6 +1,6 @@
 NAME = libftprintf.a
 DEP_NAME = libft/libft.a
-C_FILES = ft_printf.c
+C_FILES = ft_printf.c _printf.c
 O_FILES = $(C_FILES:.c=.o)
 CFLAGS = -Wall -Wextra -Werror
 CC = cc

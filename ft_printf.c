@@ -6,98 +6,26 @@
 /*   By: hhaciogl <hhaciogl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/16 17:40:25 by hhaciogl          #+#    #+#             */
-/*   Updated: 2024/11/28 20:24:08 by hhaciogl         ###   ########.fr       */
+/*   Updated: 2024/11/28 20:58:14 by hhaciogl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
-#include "./libft/libft.h"
-#include <stdarg.h>
-#include <stdlib.h>
+#include "ft_printf.h"
 
-int handle_s(char *str)
+static int	_p(void *n)
 {
-
-	if (NULL == str)
-		return (write(1, "(null)", 6));
-	return (write(1, str, ft_strlen(str)));
-}
-
-int handle_c(int c)
-{
-	return (write(1, &c, 1));
-}
-
-int handle_d_and_i(int n, int *is_err)
-{
-	char	*str;
-	int		count;
-
-	str = ft_calloc(1, 20);
-	if (NULL == str)
-	{
-		*is_err = -1;
-		return (-1);
-	}
-	ft_strlcpy(str, ft_itoa(n), 20);
-	count = handle_s(str);
-	free(str);
-	return (count);
-}
-
-int handle_u(unsigned n, int *is_err)
-{
-	if (n / 10000)
-		return (handle_d_and_i(n / 10000, is_err) +
-			handle_d_and_i(n % 10000, is_err));
-	else
-		return (handle_d_and_i(n % 10000, is_err));
-}
-
-int handle_x(unsigned n, int x)
-{
-	char *hex_str;
-	char up_case;
-	
-	hex_str = "0123456789abcdef";
-	if (16 > n)
-	{
-		if (x)
-			return (write(1, &hex_str[n], 1));
-		else
-		{
-			up_case = ft_toupper(hex_str[n]);
-			return (write(1, &up_case, 1));
-		}		
-	}
-	else
-	{
-		if (x)
-			return (handle_x(n / 16, x) + write(1, &hex_str[n % 16], 1));
-		else
-		{
-			up_case = ft_toupper(hex_str[n % 16]);
-			return (handle_x(n / 16, x) + write(1, &up_case, 1));
-		}
-			
-	}
-}
-
-int _p(void *n)
-{
-	unsigned long m;
-	char *hex_str;
-	unsigned long head;
-	unsigned long tail;
+	unsigned long	m;
+	char			*hex_str;
+	unsigned long	head;
+	unsigned long	tail;
 
 	m = (unsigned long)n;
 	hex_str = "0123456789abcdef";
 	head = m / 16;
 	tail = m % 16;
-
 	if (16 > m)
 	{
-		return (write(1, &hex_str[m], 1));	
+		return (write(1, &hex_str[m], 1));
 	}
 	else
 	{
@@ -105,15 +33,15 @@ int _p(void *n)
 	}
 }
 
-int handle_p(void *n)
+static int	handle_p(void *n)
 {
 	if (NULL == n)
 		return (write(1, "(nil)", 5));
-	return (write(1, "0x", 2) +_p(n));
+	return (write(1, "0x", 2) + _p(n));
 }
-static int handle_formats(char *a, va_list lst_ptr, int *is_err)
-{
 
+static	int	handle_formats(char *a, va_list lst_ptr, int *is_err)
+{
 	if ('s' == *a)
 		return (handle_s(va_arg(lst_ptr, char *)));
 	else if ('c' == *a)
@@ -139,11 +67,11 @@ static int handle_formats(char *a, va_list lst_ptr, int *is_err)
 	}
 }
 
-static int _printf(const char *fmt, va_list lst_ptr, int *is_err)
+static	int	_printf(const char *fmt, va_list lst_ptr, int *is_err)
 {
-	char *chr;
-	
-	if (fmt == NULL || 0 > *is_err )
+	char	*chr;
+
+	if (fmt == NULL || 0 > *is_err)
 		return (-1);
 	if (ft_strncmp(fmt, "", 1) == 0)
 	{		
@@ -155,14 +83,16 @@ static int _printf(const char *fmt, va_list lst_ptr, int *is_err)
 		return (write(1, fmt, ft_strlen(fmt)));
 	}
 	else
-		return (write(1, fmt, chr-fmt) + handle_formats(chr + 1, lst_ptr, is_err) + _printf(chr + 2, lst_ptr, is_err));
+		return (write(1, fmt, chr - fmt)
+			+ handle_formats(chr + 1, lst_ptr, is_err)
+			+ _printf(chr + 2, lst_ptr, is_err));
 }
 
 int	ft_printf(const char *format, ...)
 {
-	int	out;
-	va_list lst_ptr;
-	int is_err;
+	int		out;
+	va_list	lst_ptr;
+	int		is_err;
 
 	is_err = 0;
 	va_start(lst_ptr, format);
