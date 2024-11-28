@@ -6,11 +6,12 @@
 /*   By: hhaciogl <hhaciogl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/28 20:46:32 by hhaciogl          #+#    #+#             */
-/*   Updated: 2024/11/28 20:59:27 by hhaciogl         ###   ########.fr       */
+/*   Updated: 2024/11/28 21:02:25 by hhaciogl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
+#include <stdlib.h>
 
 int	handle_s(char *str)
 {
