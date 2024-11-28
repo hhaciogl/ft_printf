@@ -6,7 +6,7 @@
 /*   By: hhaciogl <hhaciogl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/16 17:40:25 by hhaciogl          #+#    #+#             */
-/*   Updated: 2024/11/28 18:29:15 by hhaciogl         ###   ########.fr       */
+/*   Updated: 2024/11/28 18:46:33 by hhaciogl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,15 @@ int handle_d_and_i(int n, int *is_err)
 	return (count);
 }
 
+int handle_u(unsigned n, int *is_err)
+{
+	if (n / 10000)
+		return (handle_d_and_i(n / 10000, is_err) +
+			handle_d_and_i(n % 10000, is_err));
+	else
+		return (handle_d_and_i(n % 10000, is_err));
+}
+
 
 
 static int handle_formats(char *a, va_list lst_ptr, int *is_err)
@@ -64,6 +73,8 @@ static int handle_formats(char *a, va_list lst_ptr, int *is_err)
 		return (handle_d_and_i(va_arg(lst_ptr, int), is_err));
 	else if ('%' == *a)
 		return (write(1, a, 1));
+	else if ('u' == *a)
+		return (handle_u(va_arg(lst_ptr, unsigned), is_err));
 	else
 	{
 		*is_err = -1;
