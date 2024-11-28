@@ -6,7 +6,7 @@
 /*   By: hhaciogl <hhaciogl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/16 17:40:25 by hhaciogl          #+#    #+#             */
-/*   Updated: 2024/11/28 16:59:10 by hhaciogl         ###   ########.fr       */
+/*   Updated: 2024/11/28 17:49:19 by hhaciogl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ int handle_c(int c)
 
 int handle_d(int n, int *is_err)
 {
-	char *str;
+	char	*str;
 	int		count;
 
 	str = ft_calloc(1, sizeof(int));
@@ -51,14 +51,12 @@ static int handle_formats(char *a, va_list lst_ptr, int *is_err)
 {
 
 	if ('s' == *a)
-	{
 		return (handle_s(va_arg(lst_ptr, char *)));
-	}
-	if ('c' == *a)
+	else if ('c' == *a)
 		return (handle_c(va_arg(lst_ptr, int)));
 	else
 	{
-		*is_err = 1;
+		*is_err = -1;
 		return (-1);
 	}
 }
@@ -68,8 +66,7 @@ static int _printf(const char *fmt, va_list lst_ptr, int *is_err)
 {
 	char *chr;
 	
-	is_err = 0;
-	if (fmt == NULL || 0 > is_err )
+	if (fmt == NULL || 0 > *is_err )
 		return (-1);
 	if (ft_strncmp(fmt, "", 1) == 0)
 	{		
@@ -79,10 +76,6 @@ static int _printf(const char *fmt, va_list lst_ptr, int *is_err)
 	if (NULL == chr)
 	{
 		return (write(1, fmt, ft_strlen(fmt)));
-	}
-	else if (NULL == chr+1)
-	{
-		return (-1);
 	}
 	else
 		return (write(1, fmt, chr-fmt) + handle_formats(chr + 1, lst_ptr, is_err) + _printf(chr + 2, lst_ptr, is_err));
