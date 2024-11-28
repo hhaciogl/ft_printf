@@ -6,18 +6,14 @@
 /*   By: hhaciogl <hhaciogl@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/16 17:40:25 by hhaciogl          #+#    #+#             */
-/*   Updated: 2024/11/28 19:27:47 by hhaciogl         ###   ########.fr       */
+/*   Updated: 2024/11/28 20:24:08 by hhaciogl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include "./libft/libft.h"
 #include <stdarg.h>
-#include <stdio.h>
 #include <stdlib.h>
-
-
-
 
 int handle_s(char *str)
 {
@@ -87,7 +83,34 @@ int handle_x(unsigned n, int x)
 	}
 }
 
+int _p(void *n)
+{
+	unsigned long m;
+	char *hex_str;
+	unsigned long head;
+	unsigned long tail;
 
+	m = (unsigned long)n;
+	hex_str = "0123456789abcdef";
+	head = m / 16;
+	tail = m % 16;
+
+	if (16 > m)
+	{
+		return (write(1, &hex_str[m], 1));	
+	}
+	else
+	{
+		return (_p((void *)head) + write(1, &hex_str[tail], 1));
+	}
+}
+
+int handle_p(void *n)
+{
+	if (NULL == n)
+		return (write(1, "(nil)", 5));
+	return (write(1, "0x", 2) +_p(n));
+}
 static int handle_formats(char *a, va_list lst_ptr, int *is_err)
 {
 
@@ -107,13 +130,14 @@ static int handle_formats(char *a, va_list lst_ptr, int *is_err)
 		return (handle_x(va_arg(lst_ptr, unsigned), 1));
 	else if ('X' == *a)
 		return (handle_x(va_arg(lst_ptr, unsigned), 0));
+	else if ('p' == *a)
+		return (handle_p(va_arg(lst_ptr, void *)));
 	else
 	{
 		*is_err = -1;
 		return (-1);
 	}
 }
-
 
 static int _printf(const char *fmt, va_list lst_ptr, int *is_err)
 {
@@ -133,7 +157,6 @@ static int _printf(const char *fmt, va_list lst_ptr, int *is_err)
 	else
 		return (write(1, fmt, chr-fmt) + handle_formats(chr + 1, lst_ptr, is_err) + _printf(chr + 2, lst_ptr, is_err));
 }
-
 
 int	ft_printf(const char *format, ...)
 {
